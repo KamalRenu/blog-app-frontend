@@ -1,13 +1,11 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { defaultPostImage } from "../../constants/constants";
 import classes from "./Post.module.css";
 
 const Posts = ({ post }) => {
-  const img = post.picture ? `/post/photo/${post._id}` : defaultPostImage;
   return (
     <div className={classes.post__container}>
-      <img src={img} alt="" className={classes.post__image} />
+      <img src={post.picture} alt="" className={classes.post__image} />
       <div className={classes.post__info}>
         <div className={classes.post__categories}>
           {post.category.map((cat, index) => (

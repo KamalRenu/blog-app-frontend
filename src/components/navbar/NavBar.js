@@ -26,9 +26,6 @@ const NavBar = () => {
           <Link className={classes.nav__item} to="/" onClick={handleSideNavClick}>
             HOME
           </Link>
-          <Link className={classes.nav__item} to="/About" onClick={handleSideNavClick}>
-            ABOUT
-          </Link>
           <Link className={classes.nav__item} to="/Write" onClick={handleSideNavClick}>
             WRITE
           </Link>
