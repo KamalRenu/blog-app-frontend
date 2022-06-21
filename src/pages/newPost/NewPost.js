@@ -1,121 +1,91 @@
-import React, { useState, useEffect} from "react";
+import React, { useState } from "react";
 import classes from "./NewPost.module.css";
 import axios from "axios";
-import { defaultNewPost } from "../../constants/constants";
-import { useGlobalStateValue } from "../../globalState/Context";
 
 const NewPost = () => {
-  const { user } = useGlobalStateValue();
-  const name = user.name;
   const [postData, setPostData] = useState({
     title: "",
     description: "",
     picture: "",
-    category: "",
     categories:[],
-    name: name,
+    name: "",
     success:true
   });
+  const { title, description, picture, categories, name } = postData;
 
-  const { picture, categories } = postData;
+  const handleInputChange = (name) => (event) => {
+    setPostData({ ...postData, [name]: event.target.value });
+  };
 
-  useEffect(()=>{
-      const getAllCategories = async()=>{
-        try{
-            const res = await axios.get('https://blog-app-mern-api.herokuapp.com/api/category/')
-            setPostData({...postData,categories:res.data})
-            console.log(res.data)
-        }catch(err){
-          console.log(err)
-        }
-      }
-      getAllCategories()
-  },[])
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const handleSubmit = async (event) => {
+    event.preventDefault();
     try {
-      let formData = new FormData(e.target)
-      formData.append('name',name)
-      await axios({
-        method: 'post',
-        url: 'https://blog-app-mern-api.herokuapp.com/api/post/create',
-        data: formData,
+      const res = await axios.post("https://blog-app-mern-api.herokuapp.com/api/post/create", {
+        title,
+        description,
+        picture,
+        categories,
+        name,
+        success: true
       });
-      setPostData({...postData,success:true})
+      if (res.data.error) {
+        setPostData({ ...postData, error: res.data.error });
+        return;
+      }
+      window.location.replace("/");
     } catch (err) {
       console.log(err);
     }
   };
 
-  const handleChange = (name) => (event) => {
-    event.preventDefault();
-    const value =name === "picture" ? event.target.files[0] : event.target.value;
-    setPostData({ ...postData, [name]: value,success:false});
-  };
-
   return (
-    <div className={classes.new__post}>
-      <img
-        className={classes.post__image}
-        src={picture ? URL.createObjectURL(picture) : defaultNewPost}
-        alt=""
-      />
-      {
-        postData.success && <p className={classes.success}>Post added</p>
-      }
-      <form className={classes.post__form} onSubmit={handleSubmit} >
-        <div className={classes.post__form__group}>
-          <label htmlFor="fileInput" className={classes.label}>
-            <i className="fas fa-plus"></i>
-          </label>
-          <input
-            id="fileInput"
-            type="file"
-            accept="image"
-            name="picture"
-            style={{ display: "none" }}
-            onChange={handleChange("picture")}
-          />
+    <div className={classes.signup__contaier}>
+      <span className={classes.signup__title}>Create Post</span>
+      <form className={classes.signup__form} onSubmit={handleSubmit}>
+        <label>Title</label>
+        <input
+          className={classes.signup__input}
+          type="text"
+          placeholder="Title..."
+          onChange={handleInputChange("title")}
+        />
 
-          <input
-            className={classes.post__input}
-            placeholder="Title"
-            type="text"
-            name="title"
-            autoFocus={true}
-            onChange={handleChange("title")}
-          />
+        <label>Description</label>
+        <input
+          className={classes.signup__input}
+          type="text"
+          placeholder="Description..."
+          onChange={handleInputChange("description")}
+        />
 
-          <select name="category" 
-          id="category" 
-          className={classes.post__input}
-          onChange={handleChange("category")}>
-            <option>Categories</option>
-            {categories && categories.map((ele)=>(
-              <option key={ele._id} value={ele.name}>
-                {ele.name}
-              </option>
-            ))}
-          </select>
-          
-        </div>
+        <label>Picture Url</label>
+        <input
+          className={classes.signup__input}
+          type="text"
+          placeholder="Past Url..."
+          onChange={handleInputChange("picture")}
+        />
 
-        <div className={classes.post__form__group}>
-          <textarea
-            className={[classes.post__input, classes.post__text].join(" ")}
-            placeholder="Tell your story..."
-            type="text"
-            name="description"
-            autoFocus={true}
-            onChange={handleChange("description")}
-          />
-        </div>
-        <button className={classes.post__submit} type="submit">
+        <label>Category</label>
+        <input
+          className={classes.signup__input}
+          type="text"
+          placeholder="category..."
+          onChange={handleInputChange("categories")}
+        />
+
+        <label>Name</label>
+        <input
+          className={classes.signup__input}
+          type="text"
+          placeholder="Authorname..."
+          onChange={handleInputChange("name")}
+        />
+
+        <button className={classes.signup__button} type="submit">
           Publish
         </button>
       </form>
-      
     </div>
   );
 };
